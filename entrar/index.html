@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Convite da mesa · MesaFlow</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #0d0a07;
+      color: #f5efe6;
+      font-family: system-ui, sans-serif;
+      padding: 24px;
+    }
+    main { width: 100%; max-width: 380px; text-align: center; }
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #e8853b;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    h1 { font-size: 1.7rem; margin: 0 0 6px; }
+    .sub { color: #b8ad9d; font-size: 14px; line-height: 1.5; margin: 0 0 24px; }
+    .code {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 10px;
+      padding: 16px 0 16px 10px; /* compensa o letter-spacing do último char */
+      background: #1a140e;
+      border: 1px solid #2c231a;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      user-select: all;
+    }
+    button, .btn {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      border: 0;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      color: #0d0a07;
+      background: #e8853b;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+    .ghost { background: transparent; color: #b8ad9d; border: 1px solid #2c231a; }
+    #lojas { display: none; margin-top: 18px; }
+    #lojas p { color: #b8ad9d; font-size: 13px; }
+    .erro { color: #e06c5b; }
+  </style>
+</head>
+<body>
+<main>
+  <div class="kicker">MesaFlow</div>
+  <div id="conteudo"></div>
+</main>
+
+<script>
+// TODO: app ainda não publicado nas lojas — preencher quando publicar.
+// Play: "https://play.google.com/store/apps/details?id=com.gankatech.mesaflowcardapio"
+var PLAY_STORE_URL = null;
+var APP_STORE_URL = null;
+
+var q = new URLSearchParams(location.search);
+var mesa = parseInt(q.get("mesa") || "", 10);
+var rid = q.get("restaurante_id") || "";
+var code = (q.get("code") || "").trim().toUpperCase();
+var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+var valido =
+  Number.isInteger(mesa) && mesa > 0 && mesa <= 9999 &&
+  UUID_RE.test(rid) && /^[A-Z0-9]{5}$/.test(code);
+
+var el = document.getElementById("conteudo");
+
+if (!valido) {
+  el.innerHTML =
+    '<h1>Convite inválido</h1>' +
+    '<p class="sub erro">Este link está incompleto ou expirou. Peça um novo convite a quem abriu a mesa.</p>';
+} else {
+  var params = "restaurante_id=" + rid + "&mesa=" + mesa + "&code=" + code;
+  var deepLink = "mesaflow://entrar?" + params;
+  var isAndroid = /android/i.test(navigator.userAgent);
+  var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  el.innerHTML =
+    '<h1>Você foi convidado para a Mesa ' + mesa + '</h1>' +
+    '<p class="sub">Entre na conta da mesa pelo app MesaFlow com o código abaixo.</p>' +
+    '<div class="code" id="codigo"></div>' +
+    '<button id="abrir">Abrir no app</button>' +
+    '<button id="copiar" class="ghost">Copiar código</button>' +
+    '<div id="lojas">' +
+    '  <p>Ainda não tem o app? Baixe, depois toque no convite de novo ou digite o código.</p>' +
+    '  <div id="lojaBtns"></div>' +
+    '</div>';
+  document.getElementById("codigo").textContent = code;
+
+  function abrirApp() {
+    location.href = deepLink;
+    // app não abriu (página continua visível) → mostra as lojas
+    setTimeout(function () {
+      if (!document.hidden) mostrarLojas();
+    }, 1600);
+  }
+
+  function mostrarLojas() {
+    var box = document.getElementById("lojas");
+    var btns = document.getElementById("lojaBtns");
+    box.style.display = "block";
+    if (btns.childElementCount) return;
+    // Play Store: params seguem no `referrer` (Install Referrer) para o app
+    // entrar na mesa sozinho no primeiro launch.
+    // TODO deferred deep link: após publicar, ler o Install Referrer no app
+    // (expo-application getInstallReferrerAsync) no primeiro launch. iOS não
+    // tem equivalente — fallback é o código visível/copiado nesta página.
+    var play = PLAY_STORE_URL
+      ? PLAY_STORE_URL + "&referrer=" + encodeURIComponent(params)
+      : null;
+    var itens = [];
+    if (isIos) {
+      itens = [["App Store", APP_STORE_URL]];
+    } else if (isAndroid) {
+      itens = [["Google Play", play]];
+    } else {
+      itens = [["Google Play", play], ["App Store", APP_STORE_URL]];
+    }
+    itens.forEach(function (it) {
+      if (it[1]) {
+        var a = document.createElement("a");
+        a.className = "btn";
+        a.href = it[1];
+        a.textContent = "Baixar na " + it[0];
+        btns.appendChild(a);
+      } else {
+        var p = document.createElement("p");
+        p.textContent = it[0] + ": em breve — por enquanto peça o app a quem abriu a mesa e use o código.";
+        btns.appendChild(p);
+      }
+    });
+  }
+
+  document.getElementById("abrir").addEventListener("click", abrirApp);
+  document.getElementById("copiar").addEventListener("click", function () {
+    navigator.clipboard.writeText(code).then(function () {
+      document.getElementById("copiar").textContent = "Código copiado!";
+    });
+  });
+
+  // celular: já tenta abrir o app direto; desktop só mostra as opções
+  if (isAndroid || isIos) abrirApp();
+  else mostrarLojas();
+}
+</script>
+</body>
+</html>
