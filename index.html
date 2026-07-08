@@ -3,27 +3,1098 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MesaFlow</title>
+  <title>MesaFlow — Gestão de restaurante + cardápio digital num só sistema</title>
+  <meta name="description" content="MesaFlow: software de gestão de restaurantes integrado a cardápio digital com QR Code. Pedidos, comandas, mesas, relatórios e app — tudo em tempo real. 14 dias grátis." />
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --cream: #fbf6ef;
+      --cream-alt: #f6ede2;
+      --dark: #1c1512;
+      --dark-alt: #2a1c14;
+      --tint: #211a15;
+      --text2: #6f625a;
+      --muted: #8a7c72;
+      --muted2: #a89a90;
+      --accent: #ef4e12;
+      --accent-light: #ff8a4a;
+      --roast: #c2410c;
+      --grad: linear-gradient(135deg, #ff7a2f, #ef4e12);
+      --green: #1a8a54;
+      --green-bg: #e4f6ec;
+      --border: #f0e7dc;
+      --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+      --font-body: 'Instrument Sans', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: #0d0a07;
-      color: #f5efe6;
-      font-family: system-ui, sans-serif;
-      text-align: center;
+      background: var(--cream);
+      color: var(--tint);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      overflow-x: hidden;
     }
-    h1 { font-size: 2.4rem; margin: 0 0 8px; }
-    p { color: #b8ad9d; margin: 0; }
+
+    h1, h2, h3 {
+      font-family: var(--font-display);
+      letter-spacing: -.025em;
+      line-height: 1.02;
+      margin: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+
+    section[id] { scroll-margin-top: 82px; }
+
+    .eyebrow {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent);
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 600;
+      padding: 16px 28px;
+      border-radius: 13px;
+      border: 0;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--grad);
+      color: #fff;
+      box-shadow: 0 14px 28px -12px rgba(239, 78, 18, .6);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 20px 34px -12px rgba(239, 78, 18, .72); }
+    .btn-secondary {
+      background: #fff;
+      color: var(--tint);
+      border: 1.5px solid #ece1d4;
+    }
+    .btn-secondary:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .btn-sm { padding: 10px 18px; font-size: 15px; }
+
+    /* ---------- Nav ---------- */
+    nav.topnav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(251, 246, 239, .82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(33, 26, 21, .07);
+    }
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: 20px;
+    }
+    .brand { display: flex; align-items: center; }
+    .brand img { height: 48px; width: auto; display: block; }
+    .nav-links { display: flex; gap: 34px; }
+    .nav-links a { font-size: 15px; font-weight: 500; color: #5a4d45; transition: color .16s ease; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-actions { display: flex; align-items: center; gap: 16px; }
+    .nav-actions .link-enter { font-size: 15px; font-weight: 600; color: var(--tint); }
+    .nav-toggle { display: none; }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      display: grid;
+      grid-template-columns: 1.02fr 1fr;
+      gap: 48px;
+      align-items: center;
+      padding: 64px 28px 88px;
+    }
+    .pill {
+      display: inline-block;
+      background: #fff;
+      border: 1px solid #f0e3d6;
+      padding: 8px 15px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--roast);
+      white-space: nowrap;
+    }
+    .hero h1 { font-size: clamp(40px, 4.7vw, 64px); font-weight: 800; margin: 22px 0 20px; overflow-wrap: break-word; }
+    .hero h1 .accent { color: var(--accent); }
+    .hero p.lead { font-size: 19px; line-height: 1.55; color: var(--text2); max-width: 470px; margin: 0 0 28px; }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+    .microcopy { font-size: 13px; color: var(--muted2); margin: 0 0 30px; }
+    .social { display: flex; align-items: center; gap: 14px; }
+    .avatars { display: flex; }
+    .avatars span {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 2px solid var(--cream);
+      background: linear-gradient(135deg, #ffb27a, #ef4e12);
+      margin-left: -12px;
+    }
+    .avatars span:first-child { margin-left: 0; }
+    .social-text { font-size: 13px; color: var(--text2); line-height: 1.4; }
+    .social-text b { color: var(--tint); }
+    .stars { color: #f0a500; letter-spacing: 1px; }
+
+    .hero-visual { position: relative; }
+    .hero-blob {
+      position: absolute;
+      inset: -8% -6% -8% -6%;
+      background: radial-gradient(closest-side, rgba(255, 138, 74, .26), transparent 72%);
+      z-index: 0;
+    }
+    .hero-dash { position: relative; z-index: 1; }
+    .hero-phone {
+      position: absolute;
+      left: -6%;
+      bottom: -14%;
+      width: 296px;
+      transform: scale(.5);
+      transform-origin: bottom left;
+      z-index: 2;
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    .floaty { animation: floaty 6.5s ease-in-out infinite; }
+
+    /* ---------- Trust strip ---------- */
+    .trust { text-align: center; padding: 8px 28px 56px; }
+    .trust .label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted2);
+      margin-bottom: 22px;
+    }
+    .metrics {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 34px;
+      flex-wrap: wrap;
+    }
+    .metric { display: flex; align-items: center; gap: 34px; }
+    .metric .num { font-family: var(--font-display); font-weight: 800; font-size: 28px; color: var(--tint); }
+    .metric .cap { font-size: 14px; color: var(--text2); }
+    .divider { width: 1px; height: 38px; background: #e8ddd0; }
+
+    /* ---------- Section head ---------- */
+    .section { padding: 70px 0; }
+    .sec-head { max-width: 640px; margin: 0 auto 44px; text-align: center; }
+    .sec-head h2 { font-size: clamp(32px, 3.6vw, 46px); font-weight: 800; margin: 14px 0 16px; }
+    .sec-head p { font-size: 18px; color: var(--text2); margin: 0; }
+
+    /* ---------- Recursos ---------- */
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .feat-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 26px;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .feat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -24px rgba(30, 18, 10, .4);
+      border-color: #f3d9c4;
+    }
+    .feat-ico {
+      width: 48px; height: 48px; border-radius: 13px;
+      background: #fff1e8;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .feat-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .feat-card p { font-size: 15px; color: var(--text2); margin: 0; }
+    .feat-card.accent {
+      background: var(--grad);
+      border: 0;
+      color: #fff;
+    }
+    .feat-card.accent .feat-ico { background: rgba(255, 255, 255, .2); }
+    .feat-card.accent p { color: #ffe4d3; }
+    .feat-card.accent .more { display: inline-block; margin-top: 14px; font-weight: 600; font-size: 15px; color: #fff; }
+
+    /* ---------- Showcase computer ---------- */
+    .showcase { display: grid; align-items: center; gap: 56px; }
+    .showcase.left { grid-template-columns: 1fr 1.1fr; }
+    .showcase h2 { font-size: clamp(30px, 3.2vw, 42px); font-weight: 800; margin: 14px 0 16px; }
+    .showcase p.body { font-size: 18px; color: var(--text2); margin: 0 0 24px; }
+    .checks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+    .checks li { display: flex; align-items: center; gap: 12px; font-size: 16px; color: var(--tint); }
+    .chk {
+      width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700;
+      background: var(--green-bg); color: var(--green);
+    }
+    .dash-glow { position: relative; }
+    .dash-glow::before {
+      content: "";
+      position: absolute; inset: -12%;
+      background: radial-gradient(closest-side, rgba(255, 138, 74, .22), transparent 70%);
+      z-index: 0;
+    }
+    .dash-glow > * { position: relative; z-index: 1; }
+
+    /* ---------- Dark section (phone) ---------- */
+    .dark-section {
+      background: var(--dark);
+      border-radius: 32px;
+      padding: 72px 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .dark-section::before {
+      content: "";
+      position: absolute; top: -20%; right: -10%;
+      width: 60%; height: 120%;
+      background: radial-gradient(closest-side, rgba(255, 138, 74, .2), transparent 70%);
+    }
+    .dark-section .inner { position: relative; z-index: 1; }
+    .showcase.dark { grid-template-columns: 1fr 1fr; }
+    .showcase.dark .eyebrow { color: var(--accent-light); }
+    .showcase.dark h2 { color: #fff; }
+    .showcase.dark p.body { color: #c3b3a8; }
+    .showcase.dark .checks li { color: #e6dcd4; }
+    .showcase.dark .chk { background: rgba(255, 138, 74, .16); color: var(--accent-light); }
+    .phone-mount { display: flex; justify-content: center; }
+
+    /* ---------- Planos ---------- */
+    .toggle-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 40px; flex-wrap: wrap; }
+    .toggle-label { font-size: 16px; font-weight: 600; color: var(--muted2); cursor: pointer; transition: color .16s ease; }
+    .toggle-label.on { color: var(--tint); }
+    .switch {
+      width: 56px; height: 30px; border-radius: 20px;
+      background: var(--grad); border: 0; padding: 0;
+      position: relative; cursor: pointer;
+    }
+    .switch .knob {
+      position: absolute; top: 3px; left: 3px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: #fff; transition: left .22s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+    }
+    .switch.anual .knob { left: 29px; }
+    .save-badge {
+      font-size: 13px; font-weight: 600;
+      color: var(--green); background: var(--green-bg);
+      padding: 5px 11px; border-radius: 20px;
+    }
+
+    .plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: start; }
+    .plan {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 30px;
+      box-shadow: 0 24px 50px -30px rgba(30, 18, 10, .25);
+    }
+    .plan .plan-name { font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+    .plan .plan-desc { font-size: 15px; color: var(--text2); margin: 6px 0 20px; min-height: 42px; }
+    .plan .price { display: flex; align-items: baseline; gap: 4px; }
+    .plan .price .amount { font-family: var(--font-display); font-weight: 800; font-size: 44px; }
+    .plan .price .per { font-size: 15px; color: var(--muted); }
+    .plan .legend { font-size: 13px; color: var(--muted2); margin: 4px 0 22px; }
+    .plan .btn { width: 100%; }
+    .plan-outline {
+      background: #fff; color: var(--tint);
+      border: 1.5px solid #ece1d4;
+    }
+    .plan-outline:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .plan .feats { list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 12px; }
+    .plan .feats li { display: flex; gap: 10px; font-size: 15px; color: var(--text2); }
+    .plan .feats li::before { content: "✓"; color: var(--accent); font-weight: 700; }
+    .plan .feats li.head { color: var(--tint); font-weight: 600; }
+    .plan .feats li.head::before { content: ""; }
+
+    .plan.featured {
+      background: var(--dark);
+      border: 0;
+      color: #fff;
+      transform: scale(1.04);
+      box-shadow: 0 30px 60px -30px rgba(30, 18, 10, .6);
+      position: relative;
+    }
+    .plan.featured .plan-desc { color: #c3b3a8; }
+    .plan.featured .price .per { color: #b6a89e; }
+    .plan.featured .legend { color: #9c8d82; }
+    .plan.featured .feats li { color: #c3b3a8; }
+    .plan.featured .feats li.head { color: #fff; }
+    .plan.featured .feats li::before { color: var(--accent-light); }
+    .plan.featured .badge-pop {
+      position: absolute; top: 20px; right: 20px;
+      background: var(--grad); color: #fff;
+      font-size: 12px; font-weight: 600;
+      padding: 5px 12px; border-radius: 20px;
+    }
+    .plan-note { text-align: center; font-size: 15px; color: var(--text2); margin: 34px auto 0; max-width: 620px; }
+
+    /* ---------- Duvidas ---------- */
+    .duvidas { background: var(--cream-alt); }
+    .duvidas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+    .duvidas h2 { font-size: clamp(30px, 3.2vw, 42px); font-weight: 800; margin: 14px 0 12px; }
+    .duvidas .sub { font-size: 18px; color: var(--text2); margin: 0 0 28px; }
+    .faq-list { display: flex; flex-direction: column; gap: 12px; }
+    .faq-item { background: #fff; border: 1px solid #eee2d5; border-radius: 14px; overflow: hidden; }
+    .faq-q {
+      width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+      padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      font-family: var(--font-body); font-size: 16px; font-weight: 600; color: var(--tint);
+    }
+    .faq-q .ico { color: var(--accent); font-size: 22px; flex-shrink: 0; line-height: 1; }
+    .faq-a { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height .24s ease, padding .24s ease; }
+    .faq-a p { font-size: 15px; color: var(--text2); margin: 0 0 18px; }
+    .faq-item.open .faq-a { max-height: 240px; }
+
+    .form-card {
+      background: #fff; border-radius: 22px; padding: 32px;
+      box-shadow: 0 24px 50px -30px rgba(30, 18, 10, .3);
+    }
+    .form-card h3 { font-size: 22px; font-weight: 700; }
+    .form-card .fsub { font-size: 15px; color: var(--text2); margin: 6px 0 22px; }
+    .form-grid { display: flex; flex-direction: column; gap: 14px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    label.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: var(--tint); }
+    .field input, .field textarea {
+      font-family: var(--font-body); font-size: 15px; color: var(--tint);
+      padding: 13px 14px; border: 1.5px solid #e6ddd2; border-radius: 11px;
+      background: #fdfaf6; transition: border-color .16s ease;
+      resize: vertical;
+    }
+    .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+    .consent { font-size: 12px; color: var(--muted2); margin: 4px 0 0; }
+    .form-card .btn { width: 100%; margin-top: 4px; }
+    .form-success { text-align: center; padding: 24px 8px; }
+    .form-success .ok {
+      width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 18px;
+      background: var(--green-bg); color: var(--green);
+      display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700;
+    }
+    .form-success h3 { margin-bottom: 8px; }
+    .form-success p { font-size: 15px; color: var(--text2); margin: 0; }
+
+    /* ---------- Download ---------- */
+    .download-card {
+      background: linear-gradient(135deg, #1c1512, #2a1c14);
+      border-radius: 30px; padding: 56px;
+      position: relative; overflow: hidden;
+      display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center;
+    }
+    .download-card::before {
+      content: ""; position: absolute; bottom: -30%; left: -8%;
+      width: 55%; height: 130%;
+      background: radial-gradient(closest-side, rgba(255, 138, 74, .22), transparent 70%);
+    }
+    .download-card .inner { position: relative; z-index: 1; }
+    .download-card h2 { font-size: clamp(30px, 3.2vw, 42px); font-weight: 800; color: #fff; margin: 14px 0 14px; }
+    .download-card .eyebrow { color: var(--accent-light); }
+    .download-card p { font-size: 18px; color: #c3b3a8; margin: 0 0 26px; }
+    .store-badges { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
+    .store {
+      display: flex; align-items: center; gap: 11px;
+      background: #fff; color: var(--tint);
+      padding: 11px 18px; border-radius: 14px;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .store:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -14px rgba(0, 0, 0, .5); }
+    .store svg { width: 26px; height: 26px; flex-shrink: 0; }
+    .store .small { font-size: 11px; color: var(--muted); line-height: 1.1; }
+    .store .big { font-size: 16px; font-weight: 700; line-height: 1.1; }
+    .qr-row { display: flex; align-items: center; gap: 14px; }
+    .qr {
+      width: 78px; height: 78px; flex-shrink: 0;
+      display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr);
+      gap: 2px; background: #fff; padding: 6px; border-radius: 10px;
+    }
+    .qr span { background: #1c1512; border-radius: 1px; }
+    .qr span.off { background: #fff; }
+    .qr-row .qr-text { font-size: 13px; color: #b6a89e; }
+
+    /* ---------- CTA final ---------- */
+    .cta-final {
+      background: linear-gradient(135deg, #ff7f36, #ef4e12 55%, #d13a08);
+      border-radius: 30px; padding: 60px 40px;
+      position: relative; overflow: hidden;
+      text-align: center; color: #fff;
+    }
+    .cta-final .circ { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, .1); }
+    .cta-final .c1 { width: 260px; height: 260px; top: -90px; left: -60px; }
+    .cta-final .c2 { width: 200px; height: 200px; bottom: -80px; right: -40px; }
+    .cta-final .inner { position: relative; z-index: 1; }
+    .cta-final h2 { font-size: clamp(30px, 3.4vw, 44px); font-weight: 800; margin-bottom: 14px; }
+    .cta-final p { font-size: 18px; color: rgba(255, 255, 255, .92); margin: 0 auto 28px; max-width: 520px; }
+    .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-white { background: #fff; color: var(--accent); }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -14px rgba(0, 0, 0, .3); }
+    .btn-glass { background: rgba(255, 255, 255, .14); color: #fff; border: 1.5px solid rgba(255, 255, 255, .5); }
+    .btn-glass:hover { transform: translateY(-2px); background: rgba(255, 255, 255, .22); }
+
+    /* ---------- Footer ---------- */
+    footer {
+      background: var(--dark);
+      color: #c3b3a8;
+      margin-top: 70px;
+      padding: 56px 0 28px;
+    }
+    .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; }
+    .footer-brand { display: flex; align-items: center; margin-bottom: 14px; }
+    .footer-brand img { height: 58px; width: auto; display: block; }
+    .footer-desc { font-size: 14px; color: #9c8d82; max-width: 280px; line-height: 1.5; }
+    .footer-col h4 { font-family: var(--font-body); font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 14px; }
+    .footer-col a, .footer-col p { display: block; font-size: 14px; color: #b6a89e; margin: 0 0 10px; transition: color .16s ease; }
+    .footer-col a:hover { color: var(--accent-light); }
+    .footer-bar {
+      border-top: 1px solid rgba(255, 255, 255, .08);
+      margin-top: 40px; padding-top: 22px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      font-size: 13px; color: #9c8d82;
+    }
+    .footer-bar .links { display: flex; gap: 22px; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 900px) {
+      .nav-links, .nav-actions .link-enter { display: none; }
+      .hero { grid-template-columns: 1fr; gap: 40px; padding: 40px 28px 60px; }
+      .hero-visual, .dash-glow, .showcase.dark .phone-mount, .download-card .phone-mount { min-width: 0; }
+      /* mockup do painel tem largura mínima ~660px — encolhe p/ caber no mobile */
+      [data-mock="dash"] { zoom: .52; }
+      .hero-phone { transform: scale(.42); }
+      .metric { gap: 16px; }
+      .metrics { gap: 16px; }
+      .feat-grid { grid-template-columns: 1fr; }
+      .showcase.left, .showcase.dark, .duvidas-grid, .download-card { grid-template-columns: 1fr; }
+      .plan-grid { grid-template-columns: 1fr; }
+      .plan.featured { transform: none; }
+      .showcase.dark .phone-mount { order: 2; }
+      .dark-section, .download-card { padding: 48px 28px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .footer-grid { grid-template-columns: 1fr; }
+      .divider { display: none; }
+    }
   </style>
 </head>
 <body>
-  <!-- TODO: landing page do MesaFlow -->
-  <main>
-    <h1>MesaFlow</h1>
-    <p>Cardápio digital e pedidos na mesa.</p>
-  </main>
+
+  <!-- ===== NAV ===== -->
+  <nav class="topnav">
+    <div class="nav-row">
+      <a class="brand" href="#top">
+        <img src="assets/logo.png" alt="MesaFlow" />
+      </a>
+      <div class="nav-links">
+        <a href="#recursos">Recursos</a>
+        <a href="#planos">Planos</a>
+        <a href="#app">Aplicativo</a>
+        <a href="#duvidas">Dúvidas</a>
+      </div>
+      <div class="nav-actions">
+        <a class="link-enter" href="/entrar/">Entrar</a>
+        <a class="btn btn-primary btn-sm" href="#planos">Começar grátis</a>
+      </div>
+    </div>
+  </nav>
+
+  <span id="top"></span>
+
+  <!-- ===== HERO ===== -->
+  <header class="container hero">
+    <div class="hero-copy">
+      <span class="pill">🍽 Gestão + cardápio digital num só sistema</span>
+      <h1>Todo o seu restaurante <span class="accent">fluindo</span> num só lugar</h1>
+      <p class="lead">Do pedido na mesa ao relatório do dia: o MesaFlow conecta salão, cozinha e caixa em tempo real — com cardápio digital por QR Code incluso.</p>
+      <div class="hero-btns">
+        <a class="btn btn-primary" href="#planos">Testar 14 dias grátis</a>
+        <a class="btn btn-secondary" href="#app">▶ Ver demonstração</a>
+      </div>
+      <p class="microcopy">✓ 14 dias grátis · sem cartão de crédito · cancele quando quiser</p>
+      <div class="social">
+        <div class="avatars"><span></span><span></span><span></span></div>
+        <div class="social-text">
+          <b>+1.200 restaurantes</b> já usam o MesaFlow<br />
+          <span class="stars">★★★★★</span> 4,9 de avaliação média
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-blob"></div>
+      <div class="hero-dash floaty" data-mock="dash"></div>
+      <div class="hero-phone"><div data-mock="phone"></div></div>
+    </div>
+  </header>
+
+  <!-- ===== TRUST STRIP ===== -->
+  <div class="container trust">
+    <div class="label">De food trucks a redes — o fluxo é o mesmo</div>
+    <div class="metrics">
+      <div class="metric"><span class="num">+1.200</span><span class="cap">restaurantes ativos</span></div>
+      <div class="divider"></div>
+      <div class="metric"><span class="num">4,2M</span><span class="cap">pedidos processados</span></div>
+      <div class="divider"></div>
+      <div class="metric"><span class="num">-32%</span><span class="cap">tempo de atendimento</span></div>
+      <div class="divider"></div>
+      <div class="metric"><span class="num">4,9★</span><span class="cap">nota dos clientes</span></div>
+    </div>
+  </div>
+
+  <!-- ===== RECURSOS ===== -->
+  <section id="recursos" class="section">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">Recursos</span>
+        <h2>Tudo que a operação precisa, integrado</h2>
+        <p>Um sistema só para o salão, a cozinha e o caixa — sem planilhas soltas nem gambiarra entre apps.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-ico">📱</div>
+          <h3>Cardápio digital com QR Code</h3>
+          <p>O cliente escaneia, navega pelas fotos e pede direto da mesa. Sem app, sem espera.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico">🧾</div>
+          <h3>Pedidos e comandas</h3>
+          <p>Cada pedido cai direto na cozinha e na comanda da mesa, sem erros de anotação.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico">🍽</div>
+          <h3>Controle de mesas</h3>
+          <p>Mapa do salão em tempo real: quem está ocupado, livre ou esperando a conta.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico">📊</div>
+          <h3>Relatórios e dashboard</h3>
+          <p>Vendas, ticket médio e itens mais pedidos num painel claro para decidir na hora.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico">👥</div>
+          <h3>Gestão de garçons e equipe</h3>
+          <p>Acessos por função, controle de gorjetas e desempenho de cada atendente.</p>
+        </div>
+        <div class="feat-card accent">
+          <div class="feat-ico">⚡</div>
+          <h3>Tudo em tempo real</h3>
+          <p>Salão, cozinha e caixa sempre sincronizados — no computador e no celular.</p>
+          <a class="more" href="#app">Ver todos os recursos →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SHOWCASE COMPUTADOR ===== -->
+  <section id="app" class="section">
+    <div class="container showcase left">
+      <div>
+        <span class="eyebrow">No computador</span>
+        <h2>O painel de gestão que cabe a operação inteira</h2>
+        <p class="body">Acompanhe o movimento do dia, feche comandas e entenda o que mais vende — de qualquer navegador, sem instalar nada.</p>
+        <ul class="checks">
+          <li><span class="chk">✓</span> Comandas atualizadas a cada pedido</li>
+          <li><span class="chk">✓</span> Relatórios de vendas em um clique</li>
+          <li><span class="chk">✓</span> Mapa do salão em tempo real</li>
+        </ul>
+      </div>
+      <div class="dash-glow">
+        <div class="floaty" data-mock="dash"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SHOWCASE CELULAR (dark) ===== -->
+  <section class="section">
+    <div class="container">
+      <div class="dark-section">
+        <div class="inner container showcase dark" style="padding:0;max-width:none">
+          <div class="phone-mount">
+            <div class="floaty" data-mock="phone"></div>
+          </div>
+          <div>
+            <span class="eyebrow">No celular do cliente</span>
+            <h2>Cardápio digital que vende por você</h2>
+            <p class="body">Fotos que dão água na boca, adicionais bem explicados e pedido na hora. O cliente decide sozinho e a cozinha já começa a preparar.</p>
+            <ul class="checks">
+              <li><span class="chk">✓</span> Sem baixar app — abre direto no navegador</li>
+              <li><span class="chk">✓</span> Fotos, descrições e adicionais por item</li>
+              <li><span class="chk">✓</span> Pedido cai direto na cozinha</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PLANOS ===== -->
+  <section id="planos" class="section">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">Planos</span>
+        <h2>Um plano para cada fase do seu negócio</h2>
+        <p>Comece grátis por 14 dias. Cancele quando quiser.</p>
+      </div>
+
+      <div class="toggle-row">
+        <span class="toggle-label on" data-billing="mensal">Mensal</span>
+        <button class="switch" id="billingSwitch" aria-label="Alternar cobrança mensal ou anual"><span class="knob"></span></button>
+        <span class="toggle-label" data-billing="anual">Anual</span>
+        <span class="save-badge">Economize 22%</span>
+      </div>
+
+      <div class="plan-grid">
+        <!-- Básico -->
+        <div class="plan">
+          <div class="plan-name">Básico</div>
+          <div class="plan-desc">Para começar a organizar o salão</div>
+          <div class="price"><span class="per">R$</span><span class="amount" data-mensal="49" data-anual="39">49</span><span class="per">/mês</span></div>
+          <div class="legend" data-legend>por mês</div>
+          <a class="btn plan-outline" href="/entrar/">Começar grátis</a>
+          <ul class="feats">
+            <li>Cardápio digital com QR Code</li>
+            <li>Até 10 mesas</li>
+            <li>Pedidos e comandas</li>
+            <li>1 usuário</li>
+          </ul>
+        </div>
+
+        <!-- Premium -->
+        <div class="plan featured">
+          <span class="badge-pop">Mais popular</span>
+          <div class="plan-name">Premium</div>
+          <div class="plan-desc">Para o restaurante em ritmo cheio</div>
+          <div class="price"><span class="per">R$</span><span class="amount" data-mensal="129" data-anual="99">129</span><span class="per">/mês</span></div>
+          <div class="legend" data-legend>por mês</div>
+          <a class="btn btn-primary" href="/entrar/">Começar grátis</a>
+          <ul class="feats">
+            <li class="head">Tudo do Básico, mais:</li>
+            <li>Mesas ilimitadas</li>
+            <li>Relatórios e dashboard</li>
+            <li>Gestão de garçons e equipe</li>
+            <li>Até 8 usuários</li>
+          </ul>
+        </div>
+
+        <!-- Pro -->
+        <div class="plan">
+          <div class="plan-name">Pro</div>
+          <div class="plan-desc">Para redes e operações multi-loja</div>
+          <div class="price"><span class="per">R$</span><span class="amount" data-mensal="249" data-anual="199">249</span><span class="per">/mês</span></div>
+          <div class="legend" data-legend>por mês</div>
+          <a class="btn plan-outline" href="#duvidas">Falar com vendas</a>
+          <ul class="feats">
+            <li class="head">Tudo do Premium, mais:</li>
+            <li>Múltiplas unidades</li>
+            <li>Integração com delivery</li>
+            <li>Suporte prioritário</li>
+            <li>Usuários ilimitados</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="plan-note">Todos os planos incluem 14 dias grátis e suporte em português. Precisa de algo sob medida? <a href="#duvidas" style="color:var(--accent);font-weight:600">Fale com a gente.</a></p>
+    </div>
+  </section>
+
+  <!-- ===== DUVIDAS ===== -->
+  <section id="duvidas" class="section duvidas">
+    <div class="container duvidas-grid">
+      <!-- FAQ -->
+      <div>
+        <span class="eyebrow">Dúvidas</span>
+        <h2>Ainda com perguntas?</h2>
+        <p class="sub">As respostas mais comuns de quem está começando com o MesaFlow.</p>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-q">Preciso instalar algum equipamento? <span class="ico">+</span></button>
+            <div class="faq-a"><p>Não. O MesaFlow roda no navegador do computador, tablet ou celular que você já tem. O cardápio digital funciona por QR Code, sem app.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Posso trocar de plano depois? <span class="ico">+</span></button>
+            <div class="faq-a"><p>Sim, a qualquer momento. Você pode subir ou descer de plano direto no painel, e o valor é ajustado proporcionalmente.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">O teste grátis pede cartão? <span class="ico">+</span></button>
+            <div class="faq-a"><p>Não. São 14 dias grátis com todos os recursos, sem cadastrar cartão. Só continua pagando quem gostar.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Funciona para delivery também? <span class="ico">+</span></button>
+            <div class="faq-a"><p>Sim. Nos planos Pro você integra os principais apps de delivery e centraliza todos os pedidos num só lugar.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulário -->
+      <div class="form-card" id="formWrap">
+        <form id="duvidaForm" class="form-grid" novalidate>
+          <h3>Tire suas dúvidas</h3>
+          <p class="fsub">Preencha abaixo e a nossa equipe responde rapidinho.</p>
+          <label class="field">Nome
+            <input type="text" name="nome" placeholder="Seu nome" required />
+          </label>
+          <div class="form-row">
+            <label class="field">E-mail
+              <input type="email" name="email" placeholder="voce@email.com" required />
+            </label>
+            <label class="field">WhatsApp
+              <input type="tel" name="fone" placeholder="(00) 00000-0000" />
+            </label>
+          </div>
+          <label class="field">Sua dúvida
+            <textarea name="msg" rows="4" placeholder="Conte o que você quer saber…" required></textarea>
+          </label>
+          <button type="submit" class="btn btn-primary">Enviar pergunta</button>
+          <p class="consent">Ao enviar, você concorda em ser contatado sobre o MesaFlow. Nada de spam.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DOWNLOAD ===== -->
+  <section class="section">
+    <div class="container">
+      <div class="download-card">
+        <div class="inner">
+          <span class="eyebrow">Aplicativo</span>
+          <h2>Leve o MesaFlow no bolso</h2>
+          <p>Acompanhe pedidos, mesas e vendas de onde estiver. O app é o painel completo, na palma da mão.</p>
+          <div class="store-badges">
+            <a class="store" href="#">
+              <svg viewBox="0 0 24 24" fill="#000"><path d="M16.4 12.7c0-2 1.6-3 1.7-3-.9-1.4-2.4-1.5-2.9-1.6-1.2-.1-2.4.7-3 .7-.6 0-1.6-.7-2.6-.7-1.3 0-2.6.8-3.2 2-1.4 2.4-.4 6 1 8 .7 1 1.4 2 2.5 2 1 0 1.4-.6 2.5-.6 1.2 0 1.5.6 2.5.6 1 0 1.7-1 2.4-2 .7-1.1 1-2.1 1-2.2 0 0-1.9-.7-1.9-2.9zM14.6 6c.5-.7.9-1.6.8-2.6-.8 0-1.7.5-2.3 1.2-.5.6-.9 1.5-.8 2.4.9.1 1.7-.4 2.3-1z"/></svg>
+              <div><div class="small">Baixe na</div><div class="big">App Store</div></div>
+            </a>
+            <a class="store" href="#">
+              <svg viewBox="0 0 24 24"><path fill="#00d0ff" d="M3.6 2.3c-.3.3-.5.7-.5 1.3v16.8c0 .6.2 1 .5 1.3l.1.1L13 12.1v-.2L3.7 2.2z"/><path fill="#ffce00" d="M16.3 15.3 13 12.1v-.2l3.3-3.2.1.1 3.9 2.2c1.1.6 1.1 1.7 0 2.3z"/><path fill="#00f076" d="M16.4 15.2 13 11.9 3.6 21.7c.4.4 1 .4 1.7 0z"/><path fill="#ff3a44" d="M16.4 8.8 5.3 2.3c-.7-.4-1.3-.4-1.7 0L13 11.9z"/></svg>
+              <div><div class="small">Disponível no</div><div class="big">Google Play</div></div>
+            </a>
+          </div>
+          <div class="qr-row">
+            <div class="qr" id="qr"></div>
+            <div class="qr-text">Aponte a câmera<br />e baixe o app</div>
+          </div>
+        </div>
+        <div class="phone-mount">
+          <div class="floaty" data-mock="phone"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA FINAL ===== -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-final">
+        <span class="circ c1"></span>
+        <span class="circ c2"></span>
+        <div class="inner">
+          <h2>Pronto para deixar seu restaurante mais leve?</h2>
+          <p>Comece hoje mesmo, sem cartão. Em minutos seu cardápio digital está no ar e os pedidos fluindo.</p>
+          <div class="cta-btns">
+            <a class="btn btn-white" href="/entrar/">Testar 14 dias grátis</a>
+            <a class="btn btn-glass" href="#duvidas">Falar com a equipe</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <img src="assets/logo.png" alt="MesaFlow" />
+          </div>
+          <p class="footer-desc">Gestão de restaurante e cardápio digital num só sistema. Do pedido na mesa ao relatório do dia, em tempo real.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Produto</h4>
+          <a href="#recursos">Recursos</a>
+          <a href="#planos">Planos</a>
+          <a href="#app">Aplicativo</a>
+        </div>
+        <div class="footer-col">
+          <h4>Empresa</h4>
+          <a href="#">Sobre</a>
+          <a href="#duvidas">Dúvidas</a>
+          <a href="#duvidas">Contato</a>
+        </div>
+        <div class="footer-col">
+          <h4>Contato</h4>
+          <p>contato@mesaflow.com.br</p>
+          <p>(00) 0000-0000</p>
+          <p>Seg a Sex 9h–18h</p>
+        </div>
+      </div>
+      <div class="footer-bar">
+        <span>© 2026 MesaFlow. Todos os direitos reservados.</span>
+        <span class="links"><a href="#">Termos</a><a href="#">Privacidade</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== MOCKUP TEMPLATES (recriados em CSS conforme o handoff) ===== -->
+  <template id="tpl-dash">
+    <div style="width:100%;font-family:'Instrument Sans',system-ui,sans-serif;background:#14100e;border-radius:16px;padding:9px;box-shadow:0 40px 80px -30px rgba(30,18,10,.55),0 0 0 1px rgba(255,255,255,.04) inset;box-sizing:border-box">
+      <div style="display:flex;align-items:center;gap:7px;padding:6px 8px 10px">
+        <span style="width:11px;height:11px;border-radius:50%;background:#ff5f56"></span>
+        <span style="width:11px;height:11px;border-radius:50%;background:#febc2e"></span>
+        <span style="width:11px;height:11px;border-radius:50%;background:#28c840"></span>
+        <div style="flex:1;margin-left:8px;height:24px;border-radius:7px;background:#241c18;display:flex;align-items:center;padding:0 12px;gap:7px;color:#9c8d82;font-size:12px">
+          <span style="width:9px;height:9px;border-radius:50%;border:1.5px solid #4fb477"></span>app.mesaflow.com/painel
+        </div>
+      </div>
+      <div style="display:flex;background:#faf6f1;border-radius:10px;overflow:hidden;min-height:392px">
+        <div style="width:186px;background:#1c1512;padding:16px 12px;display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:9px;padding:2px 6px 16px">
+            <span style="width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#ff7a2f,#ef4e12);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:14px">M</span>
+            <span style="color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.02em">MesaFlow</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:linear-gradient(135deg,#ff7a2f,#ef4e12);color:#fff;font-size:13px;font-weight:600">
+            <span style="width:8px;height:8px;border-radius:2px;background:#fff;box-shadow:11px 0 0 #fff,0 11px 0 #fff,11px 11px 0 #fff"></span>Painel
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:#b6a89e;font-size:13px"><span style="width:17px;height:13px;border:1.6px solid #6f625a;border-radius:3px"></span>Pedidos</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:#b6a89e;font-size:13px"><span style="width:16px;height:16px;border:1.6px solid #6f625a;border-radius:4px"></span>Mesas</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:#b6a89e;font-size:13px"><span style="width:14px;height:16px;border:1.6px solid #6f625a;border-radius:2px"></span>Cardápio</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:#b6a89e;font-size:13px"><span style="width:12px;height:12px;border:1.6px solid #6f625a;border-radius:50%;margin:2px"></span>Equipe</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:#b6a89e;font-size:13px"><span style="width:15px;height:15px;border:1.6px solid #6f625a;border-radius:3px"></span>Relatórios</div>
+          <div style="margin-top:auto;background:#2a201b;border-radius:10px;padding:12px">
+            <div style="color:#fff;font-size:12px;font-weight:600;margin-bottom:4px">Plano Pro</div>
+            <div style="color:#9c8d82;font-size:11px;line-height:1.4">Suporte prioritário ativo</div>
+          </div>
+        </div>
+        <div style="flex:1;padding:18px 20px;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;color:#211a15;letter-spacing:-.02em">Painel · Hoje</div>
+              <div style="font-size:12px;color:#8a7c72;margin-top:1px">Terça, 7 de julho — atualizado agora</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px;font-weight:600;color:#1a8a54;background:#e4f6ec;padding:5px 10px;border-radius:20px">● Aberto</span>
+              <span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#ffb27a,#ef4e12)"></span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+            <div style="background:#fff;border:1px solid #efe7de;border-radius:11px;padding:12px">
+              <div style="font-size:11px;color:#8a7c72;margin-bottom:5px">Vendas hoje</div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;color:#211a15">R$ 4.280</div>
+              <div style="font-size:11px;color:#1a8a54;font-weight:600;margin-top:2px">▲ 12%</div>
+            </div>
+            <div style="background:#fff;border:1px solid #efe7de;border-radius:11px;padding:12px">
+              <div style="font-size:11px;color:#8a7c72;margin-bottom:5px">Pedidos</div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;color:#211a15">86</div>
+              <div style="font-size:11px;color:#1a8a54;font-weight:600;margin-top:2px">▲ 8%</div>
+            </div>
+            <div style="background:#fff;border:1px solid #efe7de;border-radius:11px;padding:12px">
+              <div style="font-size:11px;color:#8a7c72;margin-bottom:5px">Ticket médio</div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;color:#211a15">R$ 49,80</div>
+              <div style="font-size:11px;color:#c2410c;font-weight:600;margin-top:2px">▼ 2%</div>
+            </div>
+            <div style="background:linear-gradient(135deg,#ff7a2f,#ef4e12);border-radius:11px;padding:12px">
+              <div style="font-size:11px;color:#ffe4d3;margin-bottom:5px">Mesas ocupadas</div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;color:#fff">18 / 24</div>
+              <div style="font-size:11px;color:#ffe4d3;font-weight:600;margin-top:2px">75% do salão</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px">
+            <div style="background:#fff;border:1px solid #efe7de;border-radius:12px;padding:14px 16px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                <div style="font-size:13px;font-weight:600;color:#211a15">Vendas da semana</div>
+                <div style="font-size:11px;color:#8a7c72">R$ 26.140</div>
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:9px;height:112px">
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%"><div style="width:100%;height:46%;background:#ffd8bf;border-radius:5px 5px 3px 3px"></div><span style="font-size:10px;color:#a89a90">Seg</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%"><div style="width:100%;height:62%;background:#ffd8bf;border-radius:5px 5px 3px 3px"></div><span style="font-size:10px;color:#a89a90">Ter</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%"><div style="width:100%;height:54%;background:#ffd8bf;border-radius:5px 5px 3px 3px"></div><span style="font-size:10px;color:#a89a90">Qua</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%"><div style="width:100%;height:78%;background:#ffc39e;border-radius:5px 5px 3px 3px"></div><span style="font-size:10px;color:#a89a90">Qui</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%"><div style="width:100%;height:100%;background:linear-gradient(#ff7a2f,#ef4e12);border-radius:5px 5px 3px 3px"></div><span style="font-size:10px;color:#5a4d45;font-weight:600">Sex</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%"><div style="width:100%;height:88%;background:#ffc39e;border-radius:5px 5px 3px 3px"></div><span style="font-size:10px;color:#a89a90">Sáb</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%"><div style="width:100%;height:50%;background:#ffd8bf;border-radius:5px 5px 3px 3px"></div><span style="font-size:10px;color:#a89a90">Dom</span></div>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #efe7de;border-radius:12px;padding:14px 15px">
+              <div style="font-size:13px;font-weight:600;color:#211a15;margin-bottom:11px">Comandas ativas</div>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:24px;border-radius:7px;background:#fff1e8;color:#ef4e12;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">12</span><span style="font-size:12px;color:#3a322c">Mesa 12</span></div>
+                  <span style="font-size:11px;font-weight:600;color:#211a15">R$ 128</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:24px;border-radius:7px;background:#fff1e8;color:#ef4e12;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">07</span><span style="font-size:12px;color:#3a322c">Mesa 07</span></div>
+                  <span style="font-size:11px;font-weight:600;color:#211a15">R$ 64</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:24px;border-radius:7px;background:#e4f6ec;color:#1a8a54;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">✓</span><span style="font-size:12px;color:#3a322c">Delivery</span></div>
+                  <span style="font-size:11px;font-weight:600;color:#211a15">R$ 89</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:24px;border-radius:7px;background:#fff1e8;color:#ef4e12;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">03</span><span style="font-size:12px;color:#3a322c">Mesa 03</span></div>
+                  <span style="font-size:11px;font-weight:600;color:#211a15">R$ 212</span>
+                </div>
+              </div>
+              <div style="margin-top:12px;text-align:center;font-size:11px;font-weight:600;color:#ef4e12;border-top:1px solid #f2ece4;padding-top:9px">Ver todas as comandas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="tpl-phone">
+    <div style="width:296px;font-family:'Instrument Sans',system-ui,sans-serif;background:#1c1512;border-radius:40px;padding:11px;box-shadow:0 40px 80px -28px rgba(30,18,10,.6),0 0 0 1px rgba(255,255,255,.05) inset;box-sizing:border-box">
+      <div style="position:relative;background:#faf6f1;border-radius:30px;overflow:hidden;height:598px">
+        <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:96px;height:24px;background:#1c1512;border-radius:14px;z-index:5"></div>
+        <div style="height:150px;background:linear-gradient(150deg,#ff7a2f,#e8460d);padding:44px 18px 0;position:relative">
+          <div style="display:flex;align-items:center;justify-content:space-between;color:#fff">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15px">B</span>
+              <div>
+                <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;line-height:1">Bistrô da Praça</div>
+                <div style="font-size:11px;color:#ffe0cd;margin-top:2px">Mesa 12 · Aberto</div>
+              </div>
+            </div>
+            <span style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:15px">♡</span>
+          </div>
+          <div style="position:absolute;left:18px;right:18px;bottom:-20px;background:#fff;border-radius:12px;padding:9px 13px;display:flex;align-items:center;gap:9px;box-shadow:0 12px 28px -12px rgba(30,18,10,.28)">
+            <span style="color:#a89a90;font-size:14px">⌕</span>
+            <span style="font-size:13px;color:#a89a90">Buscar no cardápio…</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;padding:32px 16px 10px;overflow:hidden">
+          <span style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(135deg,#ff7a2f,#ef4e12);padding:7px 14px;border-radius:20px;white-space:nowrap">Destaques</span>
+          <span style="font-size:12px;font-weight:500;color:#6f625a;background:#fff;border:1px solid #efe7de;padding:7px 14px;border-radius:20px;white-space:nowrap">Entradas</span>
+          <span style="font-size:12px;font-weight:500;color:#6f625a;background:#fff;border:1px solid #efe7de;padding:7px 14px;border-radius:20px;white-space:nowrap">Pratos</span>
+          <span style="font-size:12px;font-weight:500;color:#6f625a;background:#fff;border:1px solid #efe7de;padding:7px 14px;border-radius:20px;white-space:nowrap">Beb</span>
+        </div>
+        <div style="padding:6px 16px;display:flex;flex-direction:column;gap:11px">
+          <div style="display:flex;gap:11px;align-items:center;background:#fff;border:1px solid #f0e9e0;border-radius:14px;padding:9px">
+            <div style="width:58px;height:58px;border-radius:11px;background:linear-gradient(135deg,#ffcfa8,#ff9a5c);flex-shrink:0;position:relative"><span style="position:absolute;bottom:4px;right:4px;font-size:16px">🍔</span></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:#211a15">Burger Artesanal</div>
+              <div style="font-size:11px;color:#8a7c72;margin-top:1px;line-height:1.3">Blend 180g, cheddar, bacon</div>
+              <div style="font-size:13px;font-weight:700;color:#ef4e12;margin-top:4px">R$ 38,90</div>
+            </div>
+            <span style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#ff7a2f,#ef4e12);color:#fff;font-size:19px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</span>
+          </div>
+          <div style="display:flex;gap:11px;align-items:center;background:#fff;border:1px solid #f0e9e0;border-radius:14px;padding:9px">
+            <div style="width:58px;height:58px;border-radius:11px;background:linear-gradient(135deg,#ffe0a8,#ffb15c);flex-shrink:0;position:relative"><span style="position:absolute;bottom:4px;right:4px;font-size:16px">🍝</span></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:#211a15">Nhoque ao Sugo</div>
+              <div style="font-size:11px;color:#8a7c72;margin-top:1px;line-height:1.3">Molho da casa, manjericão</div>
+              <div style="font-size:13px;font-weight:700;color:#ef4e12;margin-top:4px">R$ 44,00</div>
+            </div>
+            <span style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#ff7a2f,#ef4e12);color:#fff;font-size:19px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</span>
+          </div>
+          <div style="display:flex;gap:11px;align-items:center;background:#fff;border:1px solid #f0e9e0;border-radius:14px;padding:9px">
+            <div style="width:58px;height:58px;border-radius:11px;background:linear-gradient(135deg,#ffd0b8,#f0764a);flex-shrink:0;position:relative"><span style="position:absolute;bottom:4px;right:4px;font-size:16px">🥗</span></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:#211a15">Salada Caesar</div>
+              <div style="font-size:11px;color:#8a7c72;margin-top:1px;line-height:1.3">Frango grelhado, croutons</div>
+              <div style="font-size:13px;font-weight:700;color:#ef4e12;margin-top:4px">R$ 32,50</div>
+            </div>
+            <span style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#ff7a2f,#ef4e12);color:#fff;font-size:19px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</span>
+          </div>
+        </div>
+        <div style="position:absolute;left:14px;right:14px;bottom:16px;background:#1c1512;border-radius:16px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 16px 30px -12px rgba(30,18,10,.5)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#ff7a2f,#ef4e12);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span>
+            <span style="color:#fff;font-size:13px;font-weight:600">Ver carrinho</span>
+          </div>
+          <span style="color:#ffb27a;font-size:14px;font-weight:700">R$ 121,40</span>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    // Monta os mockups (clona os templates nos pontos data-mock)
+    document.querySelectorAll('[data-mock]').forEach(function (mount) {
+      var tpl = document.getElementById('tpl-' + mount.dataset.mock);
+      mount.appendChild(tpl.content.cloneNode(true));
+    });
+
+    // QR placeholder — grid 5x5 determinístico
+    (function () {
+      var pattern = '1110110101011101000101110';
+      var qr = document.getElementById('qr');
+      for (var i = 0; i < 25; i++) {
+        var s = document.createElement('span');
+        if (pattern[i] === '0') s.className = 'off';
+        qr.appendChild(s);
+      }
+    })();
+
+    // Toggle de cobrança mensal/anual
+    (function () {
+      var sw = document.getElementById('billingSwitch');
+      var labels = document.querySelectorAll('.toggle-label');
+      function apply(billing) {
+        sw.classList.toggle('anual', billing === 'anual');
+        labels.forEach(function (l) { l.classList.toggle('on', l.dataset.billing === billing); });
+        document.querySelectorAll('.amount').forEach(function (a) {
+          a.textContent = a.dataset[billing];
+        });
+        document.querySelectorAll('[data-legend]').forEach(function (l) {
+          l.textContent = billing === 'anual' ? 'cobrado anualmente' : 'por mês';
+        });
+      }
+      sw.addEventListener('click', function () {
+        apply(sw.classList.contains('anual') ? 'mensal' : 'anual');
+      });
+      labels.forEach(function (l) {
+        l.addEventListener('click', function () { apply(l.dataset.billing); });
+      });
+    })();
+
+    // FAQ acordeão (itens independentes)
+    document.querySelectorAll('.faq-q').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var item = btn.closest('.faq-item');
+        var open = item.classList.toggle('open');
+        btn.querySelector('.ico').textContent = open ? '–' : '+';
+      });
+    });
+
+    // Formulário → estado de sucesso
+    document.getElementById('duvidaForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!this.checkValidity()) { this.reportValidity(); return; }
+      document.getElementById('formWrap').innerHTML =
+        '<div class="form-success">' +
+        '  <div class="ok">✓</div>' +
+        '  <h3>Mensagem enviada!</h3>' +
+        '  <p>Nossa equipe responde em até 1 dia útil no e-mail informado.</p>' +
+        '</div>';
+    });
+  </script>
 </body>
 </html>

@@ -4,7 +4,7 @@ Site estático do MesaFlow: landing page (placeholder) + página de convite da m
 
 ## Páginas
 
-- `index.html` — landing page (TODO: desenvolver).
+- `index.html` — landing page (hero, recursos, showcase painel/app, planos, FAQ + form, download, CTA). Estática, self-contained (CSS/JS inline, mockups recriados em CSS).
 - `entrar/index.html` — convite da mesa. Recebe `?restaurante_id=<uuid>&mesa=<n>&code=<5 chars>`:
   1. Tenta abrir o app via deep link `mesaflow://entrar?...` (scheme do app Expo).
   2. Se o app não abrir em ~1,6s, mostra os botões das lojas + o código para entrada manual.
@@ -31,4 +31,7 @@ Teste local: `npx serve .` e abrir
 - [ ] App Links / Universal Links verificados (abrir o link https direto no app, sem
       passar pela página): `.well-known/assetlinks.json` (SHA-256 do certificado EAS) +
       `apple-app-site-association`, e `intentFilters`/`associatedDomains` no `app.json`.
-- [ ] Landing page real em `index.html`.
+- [x] Landing page real em `index.html`.
+- [ ] Trocar mockups CSS por screenshots/vídeos reais do produto (hero, showcases, download).
+- [ ] Ligar o form de dúvidas a um backend/email (hoje só mostra sucesso no cliente).
+- [ ] Preencher contatos, links das lojas e QR real (placeholders no rodapé/download).
